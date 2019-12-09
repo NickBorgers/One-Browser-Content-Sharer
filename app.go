@@ -31,7 +31,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
     comparison := bytes.Compare([]byte(cookie.Value), dat)
 
     if comparison != 0 {
-      fmt.Println("Prented lock cookie does not match known lock")
+      fmt.Println("Presented lock cookie does not match known lock")
       w.WriteHeader(http.StatusUnauthorized)
       return
     }
