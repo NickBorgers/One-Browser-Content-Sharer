@@ -43,6 +43,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
         Name:    "lock",
         Value:   secret.String(),
         Expires: expire,
+        Secure: true,
+        HttpOnly: true,
     }
     http.SetCookie(w, &cookie)
     ioutil.WriteFile("lock.cookie", []byte(secret.String()), 0644)
