@@ -7,6 +7,7 @@ import (
   "bytes"
   "net/http"
   "time"
+  "encoding/hex"
   "github.com/google/uuid"
 )
 
@@ -18,7 +19,7 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-  dat, err := ioutil.ReadFile("lock.cookie")
+  existingLockIdBytes, err := ioutil.ReadFile("lock.cookie")
   if err == nil {
     fmt.Println("Found existing lock on content")
     cookie, err := r.Cookie("lock")
@@ -28,12 +29,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
       return
     }
 
-    comparison := bytes.Compare([]byte(cookie.Value), dat)
+    cookieBytes := []byte(cookie.Value)
+    comparison := bytes.Compare(cookieBytes, existingLockIdBytes)
 
     if comparison != 0 {
-      fmt.Println("Presented lock cookie does not match known lock")
+      fmt.Printf("Presented lock cookie (%s) does not match known lock (%s)\n", hex.EncodeToString([]byte(string(cookieBytes[0:2]))), hex.EncodeToString([]byte(string(existingLockIdBytes[0:2]))))
       w.WriteHeader(http.StatusUnauthorized)
       return
+    } else {
+      fmt.Printf("Presented lock cookie (%s) matches known lock (%s)\n", hex.EncodeToString([]byte(string(cookieBytes[0:2]))), hex.EncodeToString([]byte(string(existingLockIdBytes[0:2]))))
     }
   } else {
     fmt.Println("Did not find existing lock cookie value, generating and setting for requester")
